@@ -112,7 +112,8 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
         scope: {
             tags: '=ngModel',
             onTagAdded: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            separatorList: '@'
         },
         replace: false,
         transclude: true,
@@ -172,7 +173,8 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 tagList = scope.tagList,
                 events = scope.events,
                 options = scope.options,
-                input = element.find('input');
+                input = element.find('input'),
+                separatorList = scope.separatorList;
 
             events
                 .on('tag-added', scope.onTagAdded)
@@ -215,6 +217,35 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
 
             scope.newTagChange = function() {
                 events.trigger('input-change', scope.newTag.text);
+            };
+
+            scope.newTagPasted = function(clipboard) {
+                var rawInput = clipboard.clipboardData.getData('text/plain');
+
+                var regexp = '';
+
+                if(options.addOnComma) {
+                    regexp += ',';
+                }
+
+                if(options.addOnSpace) {
+                    regexp += ' ';
+                }
+
+                if(options.addOnSemicolon) {
+                    regexp += ';';
+                }
+
+                var match = /\/(.*)\//.exec(separatorList),
+                separator = match && new RegExp(match[1]) || separatorList || ',';
+
+                angular.forEach(rawInput.split(separator), function(value) {
+                    tagList.addText(value);
+                });
+
+                $timeout(function(){
+                    events.trigger('tag-added');
+                });
             };
 
             scope.$watch('tags', function(value) {
@@ -289,7 +320,6 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                         }
                     });
                 });
-
             element.find('div').on('click', function() {
                 input[0].focus();
             });

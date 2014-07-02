@@ -6,6 +6,9 @@
   <script type="text/javascript" src="../build/ng-tags-input.js"></script>
   <link rel="stylesheet" href="../build/ng-tags-input.css"/>
   <style>
+    label {
+      font-weight: bold;
+    }
     .foo .tags .input {
       font-size: 16px;
       font-weight: bold;
@@ -16,9 +19,9 @@
 
     .foo .tags .input {
       width: 1036px;
-      
+
     }
-    
+
     .foo .tags .tag-item {
       height: 50px;
     }
@@ -42,11 +45,13 @@
   </style>
 </head>
 <body ng-controller="Ctrl">
-<input type="checkbox" ng-model="visible"/>
   <form name="form">
-    <tags-input name="tags" ng-if="visible" ng-init="tags2=['item1', 'item2', 'item3']" ng-model="tags2" display-property="label"
+    <tags-input name="tags"  ng-init="tags2=['item1', 'item2', 'item3']" ng-model="tags2" display-property="label"
                 add-on-enter="{{addOnEnter}}"
+                add-on-space="{{addOnSpace}}"
+                add-on-comma="{{addOnComma}}"
                 add-on-blur="true"
+                separator-list="/[,;| ]/"
                 placeholder="{{placeholder}}"
                 remove-tag-symbol="{{removeTagSymbol}}"
                 max-length="5"
@@ -61,10 +66,29 @@
     <p>Valid: {{form.tags.$valid}}</p>
     <p>Errors: {{form.tags.$error}}</p>
   </form>
-
-  <input type="text" ng-model="placeholder"/><span>{{placeholder}}</span>
-  <input type="text" ng-model="removeTagSymbol"/>
-  <input type="checkbox" ng-model="addOnEnter"/><span>{{addOnEnter}}</span>
+  <h2>Options</h2>
+  <div>
+    <label for="txtPlaceholder">placeholder:</label>
+    <input type="text" name="txtPlaceholder" ng-model="placeholder"/>
+    <span>{{placeholder}}</span>
+  </div>
+  <div>
+    <label for="txtRemoveTagSymbol">removeTagSymbol:</label>
+    <input type="text" name="txtRemoveTagSymbol" ng-model="removeTagSymbol"/>
+    <span>{{removeTagSymbol}}</span>
+  </div>
+  <div>
+    <label for="chkEnter">add on enter:</label>
+    <input type="checkbox" ng-model="addOnEnter"/>
+  </div>
+  <div>
+    <label for="chkEnter">add on space:</label>
+    <input type="checkbox" ng-model="addOnSpace"/>
+  </div>
+  <div>
+    <label for="chkEnter">add on comma:</label>
+    <input type="checkbox" ng-model="addOnComma"/>
+  </div>
 
   <script type="text/javascript">
     angular.module('app', ['ngTagsInput'])
@@ -83,6 +107,9 @@
 
             $scope.tags = [{ text: 'Batman' }, { text: 'Superman' }, { text:'Flash' }];
             $scope.placeholder = 'New tag';
+            $scope.addOnEnter = true;
+            $scope.addOnSpace = false;
+            $scope.addOnComma = true;
             $scope.loadItems = function(query) {
               console.log(query);
               var deferred = $q.defer();
@@ -129,7 +156,9 @@
               .setActiveInterpolation('tagsInput', {
                 placeholder: true,
                 removeTagSymbol: true,
-                addOnEnter: true
+                addOnEnter: true,
+                addOnSpace: true,
+                addOnComma: true
               });
         });
   </script>
