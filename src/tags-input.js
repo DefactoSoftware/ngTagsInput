@@ -112,7 +112,8 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
         scope: {
             tags: '=ngModel',
             onTagAdded: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            separatorList: '@'
         },
         replace: false,
         transclude: true,
@@ -174,6 +175,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 events = scope.events,
                 options = scope.options,
                 input = element.find('input'),
+                separatorList = scope.separatorList,
                 validationOptions = ['minTags', 'maxTags', 'allowLeftoverText'],
                 setElementValidity;
 
@@ -229,6 +231,17 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
 
             scope.newTagChange = function() {
                 events.trigger('input-change', scope.newTag.text);
+            };
+
+            scope.newTagPasted = function(clipboard) {
+                var rawInput = clipboard.clipboardData.getData('text/plain');
+
+                var match = /\/(.*)\//.exec(separatorList),
+                separator = match && new RegExp(match[1]) || separatorList || ',';
+
+                angular.forEach(rawInput.split(separator), function(value) {
+                    tagList.addText(value);
+                });
             };
 
             scope.$watch('tags', function(value) {
