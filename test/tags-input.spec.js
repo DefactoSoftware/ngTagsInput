@@ -1213,6 +1213,20 @@ describe('tags-input directive', function() {
         });
     });
 
+    describe('on-invalid-tag option', function() {
+        it('calls the provided callback when a invalid tag is added', function() {
+            // Arrange
+            $scope.callback = jasmine.createSpy();
+            compile('on-invalid-tag="callback($tag)" allowed-tags-pattern="^[a-z]+@[a-z]+\\.com$"');
+
+            // Act
+            newTag('foo');
+
+            // Assert
+            expect($scope.callback).toHaveBeenCalledWith({ text: 'foo' });
+        });
+    });
+
     describe('on-tag-removed option', function () {
         it('calls the provided callback when a tag is removed by clicking the remove button', function() {
             // Arrange
