@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-09 11:57:27 +0200
+ * Generated at 2014-07-09 19:02:55 +0200
  */
 (function() {
 'use strict';
@@ -321,8 +321,14 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 var match = /\/(.*)\//.exec(separatorList),
                 separator = match && new RegExp(match[1]) || separatorList || ',';
 
-                angular.forEach(rawInput.split(separator), function(value) {
-                    tagList.addText(value);
+                var tags = rawInput.split(separator);
+
+                if(tags.length <= 1) {
+                    return;
+                }
+
+                angular.forEach(tags, function(tag) {
+                    tagList.addText(tag);
                 });
 
                 $timeout(function() {
