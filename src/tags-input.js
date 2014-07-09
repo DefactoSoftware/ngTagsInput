@@ -242,8 +242,14 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 var match = /\/(.*)\//.exec(separatorList),
                 separator = match && new RegExp(match[1]) || separatorList || ',';
 
-                angular.forEach(rawInput.split(separator), function(value) {
-                    tagList.addText(value);
+                var tags = rawInput.split(separator);
+
+                if(tags.length <= 1) {
+                    return;
+                }
+
+                angular.forEach(tags, function(tag) {
+                    tagList.addText(tag);
                 });
 
                 $timeout(function() {
