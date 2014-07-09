@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2014 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-07 01:14:38 -0300
+ * Generated at 2014-07-09 11:57:27 +0200
  */
 (function() {
 'use strict';
@@ -111,6 +111,7 @@ var tagsInput = angular.module('ngTagsInput', []);
  *                                                   When this flag is true, addOnEnter, addOnComma, addOnSpace, addOnBlur and
  *                                                   allowLeftoverText values are ignored.
  * @param {expression} onTagAdded Expression to evaluate upon adding a new tag. The new tag is available as $tag.
+ * @param {expression} onInvalidTag Expression to evaluate when a parsed tag is invalid. The invalid tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
  */
 tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", function($timeout, $document, tagsInputConfig) {
@@ -191,7 +192,9 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
         scope: {
             tags: '=ngModel',
             onTagAdded: '&',
-            onTagRemoved: '&'
+            onTagRemoved: '&',
+            separatorList: '@',
+            onInvalidTag: '&'
         },
         replace: false,
         transclude: true,
@@ -253,6 +256,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 events = scope.events,
                 options = scope.options,
                 input = element.find('input'),
+                separatorList = scope.separatorList,
                 validationOptions = ['minTags', 'maxTags', 'allowLeftoverText'],
                 setElementValidity;
 
@@ -264,6 +268,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
             events
                 .on('tag-added', scope.onTagAdded)
+                .on('invalid-tag',scope.onInvalidTag)
                 .on('tag-removed', scope.onTagRemoved)
                 .on('tag-added', function() {
                     scope.newTag.text = '';
@@ -308,6 +313,21 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
 
             scope.newTagChange = function() {
                 events.trigger('input-change', scope.newTag.text);
+            };
+
+            scope.newTagPasted = function(clipboard) {
+                var rawInput = clipboard.clipboardData.getData('text/plain');
+
+                var match = /\/(.*)\//.exec(separatorList),
+                separator = match && new RegExp(match[1]) || separatorList || ',';
+
+                angular.forEach(rawInput.split(separator), function(value) {
+                    tagList.addText(value);
+                });
+
+                $timeout(function() {
+                    events.trigger('tag-added');
+                });
             };
 
             scope.$watch('tags', function(value) {
@@ -388,6 +408,7 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
         }
     };
 }]);
+
 
 /**
  * @ngdoc directive
@@ -812,7 +833,7 @@ tagsInput.provider('tagsInputConfig', function() {
 /* HTML templates */
 tagsInput.run(["$templateCache", function($templateCache) {
     $templateCache.put('ngTagsInput/tags-input.html',
-    "<div class=\"host\" tabindex=\"-1\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"newTagChange()\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-bind-attrs=\"{placeholder: options.placeholder, tabindex: options.tabindex}\" ti-autosize=\"\"></div></div>"
+    "<div class=\"host\" tabindex=\"-1\" ti-transclude-append=\"\"><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"{ selected: tag == tagList.selected }\"><span ng-bind=\"getDisplayText(tag)\"></span> <a class=\"remove-button\" ng-click=\"tagList.remove($index)\" ng-bind=\"options.removeTagSymbol\"></a></li></ul><input class=\"input\" ng-model=\"newTag.text\" ng-change=\"newTagChange()\" ng-paste=\"newTagPasted($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ti-bind-attrs=\"{placeholder: options.placeholder, tabindex: options.tabindex}\" ti-autosize=\"\"></div></div>"
   );
 
   $templateCache.put('ngTagsInput/auto-complete.html',
