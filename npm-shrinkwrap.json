@@ -123,8 +123,8 @@
                   "from": "deep-equal@0.2.1"
                 },
                 "i": {
-                  "version": "0.3.2",
-                  "from": "i@0.3.2"
+                  "version": "0.3.3",
+                  "from": "i@0.3.3"
                 },
                 "mkdirp": {
                   "version": "0.3.5",

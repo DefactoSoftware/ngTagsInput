@@ -2,10 +2,10 @@
  * ngTagsInput v2.1.0
  * http://mbenford.github.io/ngTagsInput
  *
- * Copyright (c) 2013-2014 Michael Benford
+ * Copyright (c) 2013-2016 Michael Benford
  * License: MIT
  *
- * Generated at 2014-07-09 19:02:55 +0200
+ * Generated at 2016-11-08 22:55:59 +0100
  */
 (function() {
 'use strict';
@@ -114,7 +114,7 @@ var tagsInput = angular.module('ngTagsInput', []);
  * @param {expression} onInvalidTag Expression to evaluate when a parsed tag is invalid. The invalid tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
  */
-tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", function($timeout, $document, tagsInputConfig) {
+tagsInput.directive('tagsInput', ["$timeout","$document","$window","tagsInputConfig", function($timeout, $document, $window, tagsInputConfig) {
     function TagList(options, events) {
         var self = {}, getTagText, setTagText, tagIsValid;
 
@@ -315,8 +315,13 @@ tagsInput.directive('tagsInput', ["$timeout","$document","tagsInputConfig", func
                 events.trigger('input-change', scope.newTag.text);
             };
 
-            scope.newTagPasted = function(clipboard) {
-                var rawInput = clipboard.clipboardData.getData('text/plain');
+            scope.newTagPasted = function(event) {
+                var rawInput;
+                if(event.clipboardData) {
+                    rawInput = event.clipboardData.getData('text/plain');
+                } else {
+                    rawInput = $window.clipboardData.getData('Text');
+                }
 
                 var match = /\/(.*)\//.exec(separatorList),
                 separator = match && new RegExp(match[1]) || separatorList || ',';
