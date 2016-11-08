@@ -35,7 +35,7 @@
  * @param {expression} onInvalidTag Expression to evaluate when a parsed tag is invalid. The invalid tag is available as $tag.
  * @param {expression} onTagRemoved Expression to evaluate upon removing an existing tag. The removed tag is available as $tag.
  */
-tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) {
+tagsInput.directive('tagsInput', function($timeout, $document, $window, tagsInputConfig) {
     function TagList(options, events) {
         var self = {}, getTagText, setTagText, tagIsValid;
 
@@ -236,8 +236,13 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                 events.trigger('input-change', scope.newTag.text);
             };
 
-            scope.newTagPasted = function(clipboard) {
-                var rawInput = clipboard.clipboardData.getData('text/plain');
+            scope.newTagPasted = function(event) {
+                var rawInput;
+                if(event.clipboardData) {
+                    rawInput = event.clipboardData.getData('text/plain');
+                } else {
+                    rawInput = $window.clipboardData.getData('Text');
+                }
 
                 var match = /\/(.*)\//.exec(separatorList),
                 separator = match && new RegExp(match[1]) || separatorList || ',';
